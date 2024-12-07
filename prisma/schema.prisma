@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  fName        String
+  lName        String
+  email        String     @unique
+  password     String
+  role         String
+  userDept     String
+  empNumber    String
+  createdAt    DateTime   @default(now())
+  upDatedAt    DateTime   @default(now())
+  departmentId Int
+  department   Department @relation(fields: departmentId, references: [id])
+}
+
+model Department {
+  id             Int      @id @default(autoincrement())
+  departmentName String   @unique
+  users          User[]
+  files          File[]
+  createdAt      DateTime @default(now())
+  upDatedAt      DateTime @default(now())
+}
+
+model File {
+  id           Int        @id @unique
+  fileNo       String
+  fileTitle    String
+  fileSubject  String
+  memos        Memo[]
+  departmentId Int
+  department   Department @relation(fields: departmentId, references: [id])
+}
+
+model Memo {
+  id            Int      @id @default(autoincrement())
+  subject       String
+  title         String
+  from          String
+  to            String
+  ufs           String
+  memoComment   Json?
+  cc            Json?
+  forwardedTo   String
+  forwardHistry Json
+  body          String
+  createdAt     DateTime @default(now())
+  upDatedAt     DateTime @default(now())
+  FileId        Int
+  File          File     @relation(fields: [FileId], references: [id])
+}
