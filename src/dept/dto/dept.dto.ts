@@ -1,0 +1,3 @@
+interface DeptDto {
+  departmentName: string;
+}
