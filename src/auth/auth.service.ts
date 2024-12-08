@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { SignInDto, UserDto } from './dto/user.dto';
+import { SignInDto, UpdateUserDto, UserDto } from './dto/user.dto';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -40,9 +40,47 @@ export class AuthService {
             `No department with Id=${userDto.departmentId} was found`,
           );
         }
+        if (e.code === 'P2002') {
+          throw new ForbiddenException('User already exists');
+        }
       }
-      console.log(e.code);
       throw e;
+    }
+  }
+
+  async update(userDto: UpdateUserDto) {
+    const user = await this.prismaService.user.update({
+      where: { id: userDto.userId },
+      data: {
+        departmentId: userDto.departmentId,
+        fName: userDto.fName,
+        lName: userDto.lName,
+        role: userDto.role,
+        empNumber: userDto.empNumber,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User does not exist');
+    }
+    return user;
+  }
+
+  async resetPassword(user: SignInDto) {
+    try {
+      const hash = await argon.hash(user.password);
+      return this.prismaService.user.update({
+        where: { email: user.email },
+        data: {
+          password: hash,
+        },
+      });
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2002') {
+          throw new ForbiddenException('User does not exist');
+        }
+        throw e;
+      }
     }
   }
 
@@ -74,5 +112,9 @@ export class AuthService {
       },
       { expiresIn: '30 minutes' },
     );
+  }
+
+  async deleteUser(accountId: number) {
+  return   this.prismaService.user.delete({ where: { id: accountId } });
   }
 }

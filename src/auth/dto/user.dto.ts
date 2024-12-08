@@ -20,6 +20,23 @@ export class UserDto {
   departmentId: number;
 }
 
+export class UpdateUserDto {
+  @IsNotEmpty()
+  userId: number;
+  @IsNotEmpty()
+  fName: string;
+  @IsNotEmpty()
+  lName: string;
+  @IsNotEmpty()
+  role: string;
+  @IsNotEmpty()
+  userDept: string;
+  @IsNotEmpty()
+  empNumber: string;
+  @IsNotEmpty()
+  departmentId: number;
+}
+
 export class SignInDto {
   @IsEmail()
   @IsNotEmpty()
