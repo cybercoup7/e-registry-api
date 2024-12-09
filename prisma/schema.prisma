@@ -20,7 +20,7 @@ model User {
   email        String     @unique
   password     String
   role         String
-  userDept     String
+  position     String
   empNumber    String
   createdAt    DateTime   @default(now())
   upDatedAt    DateTime   @default(now())

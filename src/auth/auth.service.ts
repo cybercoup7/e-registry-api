@@ -28,7 +28,7 @@ export class AuthService {
           lName: userDto.lName,
           role: userDto.role,
           empNumber: userDto.empNumber,
-          userDept: '',
+          position: userDto.position,
         },
       });
       delete data.password;
@@ -57,6 +57,7 @@ export class AuthService {
         lName: userDto.lName,
         role: userDto.role,
         empNumber: userDto.empNumber,
+        position: userDto.position,
       },
     });
     if (!user) {
@@ -108,13 +109,28 @@ export class AuthService {
         lName: user.lName,
         role: user.role,
         empNumber: user.empNumber,
+        position: user.position,
         userDept: user.department,
       },
       { expiresIn: '30 minutes' },
     );
   }
 
+  async getUserByEmail(email: string) {
+    try {
+      return await this.prismaService.user.findFirstOrThrow({
+        where: { email: email },
+      });
+    } catch (_) {
+      throw new NotFoundException('User not found');
+    }
+  }
+
+  async getAllUsers() {
+    return this.prismaService.user.findMany();
+  }
+
   async deleteUser(accountId: number) {
-  return   this.prismaService.user.delete({ where: { id: accountId } });
+    return this.prismaService.user.delete({ where: { id: accountId } });
   }
 }

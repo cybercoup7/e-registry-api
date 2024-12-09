@@ -13,7 +13,7 @@ export class UserDto {
   @IsNotEmpty()
   role: string;
   @IsNotEmpty()
-  userDept: string;
+  position: string;
   @IsNotEmpty()
   empNumber: string;
   @IsNotEmpty()
@@ -30,7 +30,7 @@ export class UpdateUserDto {
   @IsNotEmpty()
   role: string;
   @IsNotEmpty()
-  userDept: string;
+  position: string;
   @IsNotEmpty()
   empNumber: string;
   @IsNotEmpty()

@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
-  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto, UpdateUserDto, UserDto } from './dto/user.dto';
@@ -22,6 +22,16 @@ export class AuthController {
   @Post('signIn')
   signIn(@Body() user: SignInDto) {
     return this.authService.signIn(user);
+  }
+
+  @Get('getUserByEmail:email')
+  getUserByEmail(@Param('email') email: string) {
+    return this.authService.getUserByEmail(email);
+  }
+
+  @Get('getAllUsers')
+  getAllUsers() {
+    return this.authService.getAllUsers();
   }
 
   @Patch('updateAccount')
