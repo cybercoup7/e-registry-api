@@ -24,6 +24,11 @@ export class AuthController {
     return this.authService.signIn(user);
   }
 
+  @Patch('updateAccount')
+  update(@Body() user: UpdateUserDto) {
+    return this.authService.update(user);
+  }
+
   @Get('getUserByEmail:email')
   getUserByEmail(@Param('email') email: string) {
     return this.authService.getUserByEmail(email);
@@ -32,11 +37,6 @@ export class AuthController {
   @Get('getAllUsers')
   getAllUsers() {
     return this.authService.getAllUsers();
-  }
-
-  @Patch('updateAccount')
-  update(@Body() user: UpdateUserDto) {
-    return this.authService.update(user);
   }
 
   @Patch('resetPassword')

@@ -38,13 +38,13 @@ model Department {
 }
 
 model File {
-  id           Int        @id @unique
+  id           String      @id @unique
   fileNo       String
   fileTitle    String
   fileSubject  String
   memos        Memo[]
+  Department   Department? @relation(fields: [departmentId], references: [id])
   departmentId Int
-  department   Department @relation(fields: departmentId, references: [id])
 }
 
 model Memo {
@@ -53,7 +53,7 @@ model Memo {
   title         String
   from          String
   to            String
-  ufs           String
+  ufs           String?
   memoComment   Json?
   cc            Json?
   forwardedTo   String
@@ -61,6 +61,6 @@ model Memo {
   body          String
   createdAt     DateTime @default(now())
   upDatedAt     DateTime @default(now())
-  FileId        Int
+  FileId        String
   File          File     @relation(fields: [FileId], references: [id])
 }
