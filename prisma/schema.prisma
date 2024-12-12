@@ -14,18 +14,19 @@ datasource db {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   fName        String
   lName        String
-  email        String     @unique
+  email        String        @unique
   password     String
   role         String
   position     String
   empNumber    String
-  createdAt    DateTime   @default(now())
-  upDatedAt    DateTime   @default(now())
+  createdAt    DateTime      @default(now())
+  upDatedAt    DateTime      @default(now())
   departmentId Int
-  department   Department @relation(fields: departmentId, references: [id])
+  department   Department    @relation(fields: departmentId, references: [id])
+  fileRequest  fileRequest[]
 }
 
 model Department {
@@ -38,13 +39,14 @@ model Department {
 }
 
 model File {
-  id           String      @id @unique
-  fileNo       String
+  id           String        @id @unique
+  fileNo       String        @unique
   fileTitle    String
   fileSubject  String
   memos        Memo[]
-  Department   Department? @relation(fields: [departmentId], references: [id])
+  Department   Department?   @relation(fields: [departmentId], references: [id])
   departmentId Int
+  fileRequest  fileRequest[]
 }
 
 model Memo {
@@ -63,4 +65,17 @@ model Memo {
   upDatedAt     DateTime @default(now())
   FileId        String
   File          File     @relation(fields: [FileId], references: [id])
+}
+
+model fileRequest {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  reason        String
+  status        String
+  comment       String?
+  requestedBy   User     @relation(fields: [userId], references: [id])
+  fileNo        String
+  fileRequested File     @relation(fields: [fileNo], references: [fileNo])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
 }
