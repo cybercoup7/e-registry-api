@@ -39,8 +39,7 @@ model Department {
 }
 
 model File {
-  id           String        @id @unique
-  fileNo       String        @unique
+  fileNo       String        @id @unique
   fileTitle    String
   fileSubject  String
   memos        Memo[]
@@ -64,7 +63,7 @@ model Memo {
   createdAt     DateTime @default(now())
   upDatedAt     DateTime @default(now())
   FileId        String
-  File          File     @relation(fields: [FileId], references: [id])
+  File          File     @relation(fields: [FileId], references: [fileNo])
 }
 
 model fileRequest {

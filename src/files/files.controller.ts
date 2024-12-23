@@ -34,8 +34,8 @@ export class FilesController {
   async getFileById(@Param('id') id: string) {
     return this.filesService.getFileById(id);
   }
-  @Delete('delete-file/:fileId')
-  async deleteFile(@Param('fileId') fileID: string) {
-    return this.filesService.deleteFile(fileID);
+  @Delete('delete-file/:fileNo')
+  async deleteFile(@Param('fileNo') fileNo: string) {
+    return this.filesService.deleteFile(fileNo);
   }
 }

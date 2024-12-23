@@ -15,7 +15,6 @@ export class FilesService {
     try {
       return await this.prismaService.file.create({
         data: {
-          id: file.id,
           fileNo: file.fileNo,
           departmentId: file.departmentId,
           fileSubject: file.fileSubject,
@@ -40,7 +39,7 @@ export class FilesService {
   async updateFile(file: fileDto) {
     try {
       return await this.prismaService.file.update({
-        where: { id: file.id },
+        where: { fileNo: file.fileNo },
         data: {
           fileNo: file.fileNo,
           departmentId: file.departmentId,
@@ -52,7 +51,9 @@ export class FilesService {
       console.log(e.code);
       if (e instanceof PrismaClientKnownRequestError) {
         if (e.code === 'P2003') {
-          throw new NotFoundException(`No file with Id=${file.id} was found`);
+          throw new NotFoundException(
+            `No file with Id=${file.fileNo} was found`,
+          );
         }
         if (e.code === 'P2025') {
           throw new NotFoundException('Department or file does not exist');
@@ -71,7 +72,7 @@ export class FilesService {
   async getFileById(id: string) {
     try {
       return await this.prismaService.file.findFirst({
-        where: { id: id },
+        where: { fileNo: id },
         include: { Department: true, memos: true },
       });
     } catch (e) {
@@ -84,12 +85,20 @@ export class FilesService {
     }
   }
 
-  async deleteFile(id: string) {
+  async deleteFile(fileNo: string) {
+    console.log(fileNo);
     try {
-      return await this.prismaService.file.delete({ where: { id: id } });
+      return await this.prismaService.file.delete({
+        where: { fileNo: fileNo },
+      });
     } catch (e) {
       console.log(e.code);
       if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2003') {
+          throw new ForbiddenException(
+            'File can not be deleted because some memos are linked to it.',
+          );
+        }
         if (e.code === 'P2025') {
           throw new NotFoundException(
             `Can not delete file that does not exist`,
