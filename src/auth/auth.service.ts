@@ -131,6 +131,6 @@ export class AuthService {
   }
 
   async deleteUser(accountId: number) {
-    return this.prismaService.user.delete({ where: { id: accountId } });
+    return this.prismaService.user.delete({ where: { id: parseInt(accountId.toString()) } });
   }
 }

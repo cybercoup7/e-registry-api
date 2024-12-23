@@ -91,7 +91,7 @@ export class MemosService {
 
   async deleteMemo(id: number) {
     try {
-      return await this.prismaService.memo.delete({ where: { id: id } });
+      return await this.prismaService.memo.delete({ where: { id: parseInt(id.toString(),) } });
     } catch (e) {
       throw new NotFoundException('memo not found');
     }

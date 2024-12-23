@@ -57,7 +57,7 @@ export class FileRequestsService {
   async deleteFileRequest(fileId: number) {
     try {
       return await this.prismaService.fileRequest.delete({
-        where: { id: fileId },
+        where: { id: parseInt(fileId.toString()) },
       });
     } catch (e) {
       throw new NotFoundException('request does not exist');
