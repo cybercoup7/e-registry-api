@@ -81,7 +81,7 @@ export class MemosService {
   async getMemoById(id: number) {
     try {
       return await this.prismaService.memo.findUnique({
-        where: { id: id },
+        where: { id: parseInt(id.toString()) },
         include: { File: true },
       });
     } catch (e) {

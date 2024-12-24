@@ -33,11 +33,28 @@ export class FileRequestsService {
   }
 
   async getAllRequests() {
-    return this.prismaService.fileRequest.findMany();
+    const data = await this.prismaService.fileRequest.findMany({
+      include: { requestedBy: true },
+    });
+    data.forEach((request) => {
+      delete request.requestedBy.password;
+    });
+    return data;
   }
 
   async getRequestById(id: number) {
-    return this.prismaService.fileRequest.findUnique({ where: { id: id } });
+    const data = await this.prismaService.fileRequest.findUnique({
+      where: { id: parseInt(id.toString()) },
+      include: { requestedBy: true },
+    });
+    delete data?.requestedBy?.password;
+    return data;
+  }
+
+  async getFileRequestByUserID(userId: number) {
+    return this.prismaService.fileRequest.findFirst({
+      where: { userId: parseInt(userId.toString()) },
+    });
   }
 
   async updateFileRequest(fileRequest: FileRequestDto, requestId: number) {

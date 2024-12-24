@@ -38,6 +38,11 @@ export class FileRequestsController {
     return this.fileRequestService.getRequestById(id);
   }
 
+  @Get('get-request-by-userId:userId')
+  getRequestByUserId(@Param('userId') userId: number) {
+    return this.fileRequestService.getFileRequestByUserID(userId);
+  }
+
   @Delete('delete-request')
   async deleteRequest(@Param('requestId') requestId: number) {
     return this.fileRequestService.deleteFileRequest(requestId);
