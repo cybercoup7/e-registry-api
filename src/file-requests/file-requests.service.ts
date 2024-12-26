@@ -36,10 +36,19 @@ export class FileRequestsService {
     const data = await this.prismaService.fileRequest.findMany({
       include: { requestedBy: true },
     });
-    data.forEach((request) => {
+    const retrievedData = [];
+    for (const request of data) {
+      const file = await this.prismaService.file.findUnique({
+        where: { fileNo: request.fileNo },
+      });
+      const department = await this.prismaService.department.findUnique({
+        where: { id: request.requestedBy.departmentId },
+      });
+
       delete request.requestedBy.password;
-    });
-    return data;
+      retrievedData.push({ ...request, file, department });
+    }
+    return retrievedData;
   }
 
   async getRequestById(id: number) {
