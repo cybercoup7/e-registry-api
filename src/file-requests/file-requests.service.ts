@@ -91,12 +91,22 @@ export class FileRequestsService {
   }
 
   async getStats() {
-    return this.prismaService.fileRequest.groupBy({
+    const data = await this.prismaService.fileRequest.groupBy({
       by: ['status'],
       _count: {
         status: true,
       },
     });
+
+    const stats = [];
+    for (let i = 0; i < data.length; i++) {
+      stats.push({
+        status: data[i].status,
+        count: data[i]._count.status,
+      });
+    }
+
+    return stats;
   }
 
   async deleteFileRequest(fileId: number) {
