@@ -32,8 +32,15 @@ export class FileRequestsService {
     }
   }
 
-  async getAllRequests() {
+  async getAllRequests(allParams: {
+    status?: string;
+    page?: string;
+    perPage?: string;
+  }) {
     const data = await this.prismaService.fileRequest.findMany({
+      where: { status: allParams.status ?? 'Pending' },
+      skip:
+        parseInt(allParams.page ?? '0') * parseInt(allParams.perPage ?? '10'),
       include: { requestedBy: true },
     });
     const retrievedData = [];
@@ -41,12 +48,15 @@ export class FileRequestsService {
       const file = await this.prismaService.file.findUnique({
         where: { fileNo: request.fileNo },
       });
-      const department = await this.prismaService.department.findUnique({
+      const userDepartment = await this.prismaService.department.findUnique({
         where: { id: request.requestedBy.departmentId },
+      });
+      const fileDepartment = await this.prismaService.department.findUnique({
+        where: { id: file.departmentId },
       });
 
       delete request.requestedBy.password;
-      retrievedData.push({ ...request, file, department });
+      retrievedData.push({ ...request, file, userDepartment, fileDepartment });
     }
     return retrievedData;
   }
@@ -66,18 +76,27 @@ export class FileRequestsService {
     });
   }
 
-  async updateFileRequest(fileRequest: FileRequestDto, requestId: number) {
+  async updateFileRequest(status: string, requestId: number, comment?: string) {
     try {
       return await this.prismaService.fileRequest.update({
-        where: { id: requestId },
+        where: { id: parseInt(requestId.toString()) },
         data: {
-          fileNo: fileRequest.fileNo,
-          reason: fileRequest.reason,
+          status: status,
+          comment: comment ?? '',
         },
       });
     } catch (e) {
       throw new NotFoundException('request does not exist');
     }
+  }
+
+  async getStats() {
+    return this.prismaService.fileRequest.groupBy({
+      by: ['status'],
+      _count: {
+        status: true,
+      },
+    });
   }
 
   async deleteFileRequest(fileId: number) {

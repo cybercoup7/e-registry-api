@@ -1,6 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { FileRequestsService } from './file-requests.service';
 import { FileRequestDto } from './dto/file-request.dto';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('file-requests')
 export class FileRequestsController {
@@ -11,36 +21,50 @@ export class FileRequestsController {
     return this.fileRequestService.createFileRequest(request);
   }
 
-  @Patch('update-request:requestId')
+  @Patch('update-request/:requestId')
+  @ApiQuery({
+    name: 'status',
+    required: true,
+    enum: ['Pending', 'Successful', 'Rejected'],
+  })
+  @ApiQuery({ name: 'comment', required: false })
   async updateRequest(
-    @Body() request: FileRequestDto,
     @Param('requestId') requestId: number,
+    @Query('status') status: string,
+    @Query('comment') comment?: string,
   ) {
-    return this.fileRequestService.updateFileRequest(request, requestId);
+    console.log(status, comment);
+    return this.fileRequestService.updateFileRequest(
+      status,
+      requestId,
+      comment,
+    );
   }
-
-  @Patch('change-status:requestId')
-  async changeRequestStatus(
-    @Param('requestId') requestId: number,
-    @Body() status: string,
-    @Body() comment: string,
-  ) {
-    return this.fileRequestService.changeStatus(status, comment, requestId);
-  }
-
   @Get('get-all-file-requests')
-  getAllFileRequests() {
-    return this.fileRequestService.getAllRequests();
+  @ApiQuery({
+    name: 'status',
+    required: true,
+    enum: ['Pending', 'Successful', 'Rejected'],
+  })
+  getAllFileRequests(
+    @Query() allParams: { status?: string; page?: string; perPage?: string },
+  ) {
+    return this.fileRequestService.getAllRequests(allParams);
   }
 
-  @Get('get-request-by-id:id')
+  @Get('get-request-by-id/:id')
   getRequestById(@Param('id') id: number) {
     return this.fileRequestService.getRequestById(id);
   }
 
-  @Get('get-request-by-userId:userId')
+  @Get('get-request-by-userId/:userId')
   getRequestByUserId(@Param('userId') userId: number) {
     return this.fileRequestService.getFileRequestByUserID(userId);
+  }
+
+  @Get('get-stats')
+  async getStats() {
+    return this.fileRequestService.getStats();
   }
 
   @Delete('delete-request')

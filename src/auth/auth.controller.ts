@@ -29,7 +29,7 @@ export class AuthController {
     return this.authService.update(user);
   }
 
-  @Get('getUserByEmail:email')
+  @Get('getUserByEmail/:email')
   getUserByEmail(@Param('email') email: string) {
     return this.authService.getUserByEmail(email);
   }
