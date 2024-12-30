@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { MemosService } from './memos.service';
 import { MemoDto } from './dto/memoDto.dto';
+import { ForwardMemoDto } from './dto/forwardMemo.dto';
 
 @Controller('memos')
 export class MemosController {
@@ -17,6 +18,11 @@ export class MemosController {
   @Post('create-memo')
   async createMemo(@Body() memoDto: MemoDto) {
     return this.memosService.createMemo(memoDto);
+  }
+
+  @Post('forward-memo')
+  async forwardMemo(@Body() dto: ForwardMemoDto) {
+    return this.memosService.forwardMemo(dto);
   }
 
   @Patch('update-memo/:memoId')

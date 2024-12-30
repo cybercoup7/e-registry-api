@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { MemoDto } from './dto/memoDto.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { ForwardMemoDto } from './dto/forwardMemo.dto';
 
 @Injectable()
 export class MemosService {
@@ -15,15 +16,8 @@ export class MemosService {
     try {
       return await this.prismaService.memo.create({
         data: {
-          from: memo.from,
           body: memo.body,
-          FileId: memo.fileId,
-          cc: memo.cc,
-          forwardedTo: memo.forwardedTo,
-          memoComment: memo.memoComment,
-          forwardHistry: [],
-          to: memo.to,
-          ufs: memo.ufs,
+          fileId: memo.fileId,
           title: memo.title,
           subject: memo.subject,
         },
@@ -47,15 +41,8 @@ export class MemosService {
       return await this.prismaService.memo.update({
         where: { id: id },
         data: {
-          from: memo.from,
           body: memo.body,
-          FileId: memo.fileId,
-          cc: memo.cc,
-          forwardedTo: memo.forwardedTo,
-          memoComment: memo.memoComment,
-          forwardHistry: memo.forwardedTo,
-          to: memo.to,
-          ufs: memo.ufs,
+          fileId: memo.fileId,
           title: memo.title,
           subject: memo.subject,
         },
@@ -74,17 +61,43 @@ export class MemosService {
     }
   }
 
+  //forwardMemo
+  async forwardMemo(dto: ForwardMemoDto) {
+    return this.prismaService.forwardedMemo.create({
+      data: {
+        forwardedById: dto.forwardedById,
+        forwardedToId: dto.forwardedToId,
+        status: dto.status,
+        comment: dto.comment,
+        memoId: dto.memoId,
+      },
+    });
+  }
+
   async getAllMemos() {
-    return this.prismaService.memo.findMany({ include: { File: true } });
+    return this.prismaService.memo.findMany({ include: { file: true } });
   }
 
   async getMemoById(id: number) {
     try {
-      return await this.prismaService.memo.findUnique({
+      const data = await this.prismaService.memo.findUnique({
         where: { id: parseInt(id.toString()) },
-        include: { File: true },
+        include: { file: true },
       });
+      const huh = await this.prismaService.forwardedMemo.findMany({
+        where: { memoId: parseInt(id.toString()) },
+        include: {
+          forwardedTo: true,
+          forwardedBy: true,
+        },
+      });
+      huh.forEach((value) => {
+        delete value.forwardedBy.password;
+        delete value.forwardedTo.password;
+      });
+      return { ...data, huh };
     } catch (e) {
+      console.log(e.toString());
       throw new NotFoundException('memo not found');
     }
   }

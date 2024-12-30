@@ -65,7 +65,7 @@ export class FilesService {
 
   async getAllFiles() {
     return this.prismaService.file.findMany({
-      include: { memos: true, Department: true },
+      include: { memos: true, department: true },
     });
   }
 
@@ -73,7 +73,7 @@ export class FilesService {
     try {
       return await this.prismaService.file.findFirst({
         where: { fileNo: id },
-        include: { Department: true, memos: true },
+        include: { department: true, memos: true },
       });
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
