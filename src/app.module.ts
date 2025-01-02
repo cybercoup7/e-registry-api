@@ -5,6 +5,7 @@ import { DeptModule } from './dept/dept.module';
 import { MemosModule } from './memos/memos.module';
 import { FilesModule } from './files/files.module';
 import { FileRequestsModule } from './file-requests/file-requests.module';
+import { LogsModule } from './logs/logs.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { FileRequestsModule } from './file-requests/file-requests.module';
     MemosModule,
     FilesModule,
     FileRequestsModule,
+    LogsModule,
   ],
 })
 export class AppModule {}

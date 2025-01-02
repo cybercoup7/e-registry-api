@@ -14,21 +14,23 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
+  id           Int             @id @default(autoincrement())
   fName        String
   lName        String
-  email        String        @unique
+  email        String          @unique
   password     String
   role         String
   position     String
   empNumber    String
-  createdAt    DateTime      @default(now())
-  upDatedAt    DateTime      @default(now())
+  createdAt    DateTime        @default(now())
+  upDatedAt    DateTime        @default(now())
   departmentId Int
-  department   Department    @relation(fields: departmentId, references: [id])
+  department   Department      @relation(fields: departmentId, references: [id])
   fileRequest  fileRequest[]
-  forwardedTo ForwardedMemo[] @relation(name: "forwardedTo")
-  forwardedBy ForwardedMemo[] @relation(name: "forwardedBy")
+  forwardedTo  ForwardedMemo[] @relation(name: "forwardedTo")
+  forwardedBy  ForwardedMemo[] @relation(name: "forwardedBy")
+  userLogs     Log[]
+  file File[]
 }
 
 model Department {
@@ -47,18 +49,19 @@ model File {
   memos        Memo[]
   department   Department?   @relation(fields: [departmentId], references: [id])
   departmentId Int
+  users        User[]
   fileRequest  fileRequest[]
 }
 
 model Memo {
-  id            Int      @id @default(autoincrement())
-  subject       String
-  title         String
-  body          String
-  createdAt     DateTime @default(now())
-  upDatedAt     DateTime @default(now())
-  fileId        String
-  file          File     @relation(fields: [fileId], references: [fileNo])
+  id             Int             @id @default(autoincrement())
+  subject        String
+  title          String
+  body           String
+  createdAt      DateTime        @default(now())
+  upDatedAt      DateTime        @default(now())
+  fileId         String
+  file           File            @relation(fields: [fileId], references: [fileNo])
   forwardHistory ForwardedMemo[]
 }
 
@@ -69,12 +72,21 @@ model ForwardedMemo {
   comment       String?
   forwardedToId Int
   forwardedById Int
-  forwardedTo   User @relation(name:"forwardedTo", fields: [forwardedToId], references: [id])
-  forwardedBy   User @relation(name:"forwardedBy", fields: [forwardedById], references: [id])
+  forwardedTo   User     @relation(name: "forwardedTo", fields: [forwardedToId], references: [id])
+  forwardedBy   User     @relation(name: "forwardedBy", fields: [forwardedById], references: [id])
   forwardedDate DateTime @default(now())
   memo          Memo     @relation(fields: [memoId], references: [id])
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now())
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  action    String
+  title     String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model fileRequest {

@@ -64,17 +64,75 @@ export class FilesService {
   }
 
   async getAllFiles() {
-    return this.prismaService.file.findMany({
-      include: { memos: true, department: true },
+    const files = await this.prismaService.file.findMany({
+      include: { memos: true, department: true, users: true },
     });
+    for (const file of files) {
+      for (const user of file.users) {
+        delete user.password;
+      }
+    }
+    return files;
+  }
+
+  // add user to file
+  async addUserToFile(fileNo: string, userId: number) {
+    try {
+      return await this.prismaService.file.update({
+        where: { fileNo: fileNo },
+        data: {
+          users: {
+            connect: { id: userId },
+          },
+        },
+      });
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2003') {
+          throw new NotFoundException(`No file with Id=${fileNo} was found`);
+        }
+        if (e.code === 'P2025') {
+          throw new NotFoundException('user or file does not exist');
+        }
+      }
+      throw e;
+    }
+  }
+
+  //remove user from file
+  async removeUserFromFile(fileNo: string, userId: number) {
+    try {
+      return await this.prismaService.file.update({
+        where: { fileNo: fileNo },
+        data: {
+          users: {
+            disconnect: { id: userId },
+          },
+        },
+      });
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2003') {
+          throw new NotFoundException(`No file with Id=${fileNo} was found`);
+        }
+        if (e.code === 'P2025') {
+          throw new NotFoundException('user or file does not exist');
+        }
+      }
+      throw e;
+    }
   }
 
   async getFileById(id: string) {
     try {
-      return await this.prismaService.file.findFirst({
+      const file = await this.prismaService.file.findFirst({
         where: { fileNo: id },
-        include: { department: true, memos: true },
+        include: { department: true, memos: true, users: true },
       });
+      for (const user of file.users) {
+        delete user.password;
+      }
+      return file;
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
         if (e.code === 'P2004') {
