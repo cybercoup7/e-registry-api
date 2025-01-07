@@ -48,7 +48,6 @@ export class FilesService {
         },
       });
     } catch (e) {
-      console.log(e.code);
       if (e instanceof PrismaClientKnownRequestError) {
         if (e.code === 'P2003') {
           throw new NotFoundException(
@@ -99,6 +98,14 @@ export class FilesService {
     }
   }
 
+  //get files where user is assigned
+  async getFilesByUserId(userId: number) {
+    return this.prismaService.file.findMany({
+      where: { users: { some: { id: userId } } },
+      include: { department: true, memos: true, users: true },
+    });
+  }
+
   //remove user from file
   async removeUserFromFile(fileNo: string, userId: number) {
     try {
@@ -123,34 +130,48 @@ export class FilesService {
     }
   }
 
+  // get file stats
+  async getFileStats(fileNo: string) {
+    const file = await this.prismaService.file.findFirst({
+      where: { fileNo: fileNo },
+      include: { memos: true, users: true },
+    });
+    if (!file) {
+      throw new NotFoundException(`No file with Id=${fileNo} was found`);
+    }
+    return {
+      users: file.users.length,
+      pendingMemos: file.memos.filter((memo) => memo.status === 'Pending')
+        .length,
+      approvedMemos: file.memos.filter((memo) => memo.status === 'Approved')
+        .length,
+      totalMemos: file.memos.length,
+    };
+  }
+
+  // get file by id
   async getFileById(id: string) {
-    try {
+
       const file = await this.prismaService.file.findFirst({
         where: { fileNo: id },
         include: { department: true, memos: true, users: true },
       });
+      if (!file) {
+        throw new NotFoundException(`No file with Id=${id} was found`);
+      }
       for (const user of file.users) {
         delete user.password;
       }
       return file;
-    } catch (e) {
-      if (e instanceof PrismaClientKnownRequestError) {
-        if (e.code === 'P2004') {
-          throw new ForbiddenException(`No file with Id=${id} was found`);
-        }
-      }
-      throw e;
-    }
+
   }
 
   async deleteFile(fileNo: string) {
-    console.log(fileNo);
     try {
       return await this.prismaService.file.delete({
         where: { fileNo: fileNo },
       });
     } catch (e) {
-      console.log(e.code);
       if (e instanceof PrismaClientKnownRequestError) {
         if (e.code === 'P2003') {
           throw new ForbiddenException(

@@ -40,6 +40,13 @@ export class MemosController {
     return this.memosService.getMemoById(memoId);
   }
 
+  @Get('get-memos-forwarded-to-user/:userId')
+  async getMemosForwardedToUser(@Param('userId') userId: number) {
+    return this.memosService.getMemosForwardedToUser(
+      parseInt(userId.toString()),
+    );
+  }
+
   @Delete('delete-memo/:memoId')
   async deleteMemo(@Param('memoId') memoId: number) {
     return this.memosService.deleteMemo(memoId);

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class MemoDto {
   @IsNotEmpty()
@@ -9,9 +9,19 @@ export class MemoDto {
   @IsString()
   fileId: string;
 
+  @IsString()
+  status?: string;
   @IsNotEmpty()
   @IsString()
   title: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  from: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  to: number;
 
   @IsNotEmpty()
   @IsString()

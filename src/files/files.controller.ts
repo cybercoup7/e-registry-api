@@ -49,7 +49,14 @@ export class FilesController {
   async getFileById(@Param('id') id: string) {
     return this.filesService.getFileById(id);
   }
-
+  @Get('get-user-assigned-files/:userId')
+  async getUserAssignedFiles(@Param('userId') userId: string) {
+    return this.filesService.getFilesByUserId(parseInt(userId));
+  }
+  @Get('get-file-stats/:fileNo')
+  async getFileStats(@Param('fileNo') fileNo: string) {
+    return this.filesService.getFileStats(fileNo);
+  }
   @Delete('delete-file/:fileNo')
   async deleteFile(@Param('fileNo') fileNo: string) {
     return this.filesService.deleteFile(fileNo);

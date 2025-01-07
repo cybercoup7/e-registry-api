@@ -18,7 +18,8 @@ export class MemosService {
         data: {
           body: memo.body,
           fileId: memo.fileId,
-          title: memo.title,
+          from: memo.from,
+          to: memo.to,
           subject: memo.subject,
         },
       });
@@ -38,12 +39,12 @@ export class MemosService {
 
   async updateMemo(memo: MemoDto, id: number) {
     try {
-      return await this.prismaService.memo.update({
+      await this.prismaService.memo.update({
         where: { id: id },
         data: {
           body: memo.body,
+          status: memo.status,
           fileId: memo.fileId,
-          title: memo.title,
           subject: memo.subject,
         },
       });
@@ -74,34 +75,45 @@ export class MemosService {
     });
   }
 
+  // get all memos
   async getAllMemos() {
     return this.prismaService.memo.findMany({ include: { file: true } });
   }
 
+  //get memo by id
   async getMemoById(id: number) {
+    const data = await this.prismaService.memo.findUnique({
+      where: { id: parseInt(id.toString()) },
+      include: { file: true },
+    });
+    if (!data) throw new NotFoundException('memo not found');
+    const forwardHistory = await this.prismaService.forwardedMemo.findMany({
+      where: { memoId: parseInt(id.toString()) },
+      include: {
+        forwardedTo: true,
+        forwardedBy: true,
+      },
+    });
+    forwardHistory.forEach((value) => {
+      delete value.forwardedBy.password;
+      delete value.forwardedTo.password;
+    });
+    return { ...data, forwardHistory };
+  }
+
+  //get memos forwarded to a user
+  async getMemosForwardedToUser(userId: number) {
     try {
-      const data = await this.prismaService.memo.findUnique({
-        where: { id: parseInt(id.toString()) },
-        include: { file: true },
+      return await this.prismaService.forwardedMemo.findMany({
+        where: { forwardedToId: userId },
+        include: { memo: true },
       });
-      const huh = await this.prismaService.forwardedMemo.findMany({
-        where: { memoId: parseInt(id.toString()) },
-        include: {
-          forwardedTo: true,
-          forwardedBy: true,
-        },
-      });
-      huh.forEach((value) => {
-        delete value.forwardedBy.password;
-        delete value.forwardedTo.password;
-      });
-      return { ...data, huh };
     } catch (e) {
-      console.log(e.toString());
       throw new NotFoundException('memo not found');
     }
   }
 
+  //delete memo
   async deleteMemo(id: number) {
     try {
       return await this.prismaService.memo.delete({

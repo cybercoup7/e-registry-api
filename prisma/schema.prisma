@@ -14,23 +14,25 @@ datasource db {
 }
 
 model User {
-  id           Int             @id @default(autoincrement())
-  fName        String
-  lName        String
-  email        String          @unique
-  password     String
-  role         String
-  position     String
-  empNumber    String
-  createdAt    DateTime        @default(now())
-  upDatedAt    DateTime        @default(now())
-  departmentId Int
-  department   Department      @relation(fields: departmentId, references: [id])
-  fileRequest  fileRequest[]
-  forwardedTo  ForwardedMemo[] @relation(name: "forwardedTo")
-  forwardedBy  ForwardedMemo[] @relation(name: "forwardedBy")
-  userLogs     Log[]
-  file File[]
+  id             Int             @id @default(autoincrement())
+  fName          String
+  lName          String
+  email          String          @unique
+  password       String
+  role           String
+  position       String
+  empNumber      String
+  createdAt      DateTime        @default(now())
+  upDatedAt      DateTime        @default(now())
+  departmentId   Int
+  department     Department      @relation(fields: departmentId, references: [id])
+  fileRequest    fileRequest[]
+  forwardedTo    ForwardedMemo[] @relation(name: "forwardedTo")
+  forwardedBy    ForwardedMemo[] @relation(name: "forwardedBy")
+  userLogs       Log[]
+  file           File[]
+  userMemos      Memo[]          @relation(name: "fromUserRelation")
+  forwardedMemos Memo[]          @relation(name: "toUserRelation")
 }
 
 model Department {
@@ -56,7 +58,11 @@ model File {
 model Memo {
   id             Int             @id @default(autoincrement())
   subject        String
-  title          String
+  status          String          @default("Pending")
+  from           Int
+  fromUser       User            @relation(name: "fromUserRelation", fields: [from], references: [id])
+  to             Int
+  toUser         User            @relation(name: "toUserRelation", fields: [to], references: [id])
   body           String
   createdAt      DateTime        @default(now())
   upDatedAt      DateTime        @default(now())
