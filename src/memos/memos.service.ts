@@ -13,12 +13,14 @@ export class MemosService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async createMemo(memo: MemoDto) {
+    console.log(memo);
     try {
       return await this.prismaService.memo.create({
         data: {
           body: memo.body,
           fileId: memo.fileId,
           from: memo.from,
+          isDraft: memo.isDraft,
           to: memo.to,
           subject: memo.subject,
         },
@@ -33,6 +35,7 @@ export class MemosService {
         if (e.code === 'P2002') {
           throw new ForbiddenException('memo already exists');
         }
+        throw new ForbiddenException(e.message);
       }
     }
   }
@@ -43,6 +46,7 @@ export class MemosService {
         where: { id: id },
         data: {
           body: memo.body,
+          isDraft: memo.isDraft,
           status: memo.status,
           fileId: memo.fileId,
           subject: memo.subject,
@@ -51,9 +55,7 @@ export class MemosService {
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
         if (e.code === 'P2003') {
-          throw new NotFoundException(
-            `No file with Id=${memo.fileId} was found`,
-          );
+          throw new NotFoundException(`No file or user was found`);
         }
         if (e.code === 'P2002') {
           throw new ForbiddenException('User already exists');
@@ -77,13 +79,16 @@ export class MemosService {
 
   // get all memos
   async getAllMemos() {
-    return this.prismaService.memo.findMany({ include: { file: true } });
+    return this.prismaService.memo.findMany({
+      where: { isDraft: false },
+      include: { file: true ,fromUser: true ,toUser: true },
+    });
   }
 
   //get memo by id
   async getMemoById(id: number) {
     const data = await this.prismaService.memo.findUnique({
-      where: { id: parseInt(id.toString()) },
+      where: { id: parseInt(id.toString()), isDraft: false },
       include: { file: true },
     });
     if (!data) throw new NotFoundException('memo not found');
@@ -105,14 +110,48 @@ export class MemosService {
   async getMemosForwardedToUser(userId: number) {
     try {
       return await this.prismaService.forwardedMemo.findMany({
-        where: { forwardedToId: userId },
-        include: { memo: true },
+        where: { forwardedToId: userId},
+        include: { memo: true ,forwardedTo: true, forwardedBy: true },
       });
     } catch (e) {
       throw new NotFoundException('memo not found');
     }
   }
 
+  //get memos forwarded from a user
+  async getMemosForwardedFromUser(userId: number) {
+    try {
+      return await this.prismaService.forwardedMemo.findMany({
+        where: { forwardedById: userId },
+        include: { memo: true, forwardedTo: true ,forwardedBy: true },
+      });
+    } catch (e) {
+      throw new NotFoundException('memo not found');
+    }
+  }
+
+  //get memos sent by a user
+  async getUserMemos(userId: number) {
+    try {
+      return await this.prismaService.memo.findMany({
+        where: { from: userId, isDraft: false },
+        include: { file: true ,fromUser: true ,toUser: true },
+      });
+    } catch (e) {
+      throw new NotFoundException('memo not found');
+    }
+  }
+  //get user drafts
+  async getUserDrafts(userId: number) {
+    try {
+      return await this.prismaService.memo.findMany({
+        where: { from: userId, isDraft: true },
+        include: { file: true,fromUser: true ,toUser: true },
+      });
+    } catch (e) {
+      throw new NotFoundException('memo not found');
+    }
+  }
   //delete memo
   async deleteMemo(id: number) {
     try {

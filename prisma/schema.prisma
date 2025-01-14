@@ -58,22 +58,27 @@ model File {
 model Memo {
   id             Int             @id @default(autoincrement())
   subject        String
-  status          String          @default("Pending")
+  status         String          @default("Pending")
+  isDraft        Boolean         @default(false)
   from           Int
   fromUser       User            @relation(name: "fromUserRelation", fields: [from], references: [id])
-  to             Int
-  toUser         User            @relation(name: "toUserRelation", fields: [to], references: [id])
-  body           String
+  to             Int?
+  toUser         User?           @relation(name: "toUserRelation", fields: [to], references: [id])
+  body           String?
+  read           Boolean         @default(false)
   createdAt      DateTime        @default(now())
-  upDatedAt      DateTime        @default(now())
-  fileId         String
-  file           File            @relation(fields: [fileId], references: [fileNo])
+  updatedAt      DateTime        @default(now()) @updatedAt
+  fileId         String?
+  file           File?           @relation(fields: [fileId], references: [fileNo])
   forwardHistory ForwardedMemo[]
+
+  @@index([status, isDraft])
 }
 
 model ForwardedMemo {
   id            Int      @id @default(autoincrement())
   memoId        Int
+  read          Boolean  @default(false)
   status        String
   comment       String?
   forwardedToId Int

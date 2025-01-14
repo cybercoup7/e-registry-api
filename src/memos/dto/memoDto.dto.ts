@@ -1,28 +1,16 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class MemoDto {
-  @IsNotEmpty()
-  @IsString()
-  body: string;
-
-  @IsNotEmpty()
-  @IsString()
-  fileId: string;
-
-  @IsString()
-  status?: string;
-  @IsNotEmpty()
-  @IsString()
-  title: string;
-
+  body?: string = null;
+  fileId?: string = null;
+  status: string = 'Draft';
   @IsNotEmpty()
   @IsNumber()
   from: number;
-
+  to?: number = null;
   @IsNotEmpty()
-  @IsNumber()
-  to: number;
-
+  @IsBoolean()
+  isDraft: boolean;
   @IsNotEmpty()
   @IsString()
   subject: string;

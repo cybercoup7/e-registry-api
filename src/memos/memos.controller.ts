@@ -47,6 +47,22 @@ export class MemosController {
     );
   }
 
+  @Get('get-memos-forwarded-from-user/:userId')
+  async getMemosForwardedFromUser(@Param('userId') userId: number) {
+    return this.memosService.getMemosForwardedFromUser(
+      parseInt(userId.toString()),
+    );
+  }
+
+  @Get('get-user-memos/:userId')
+  async getMemosSentByUser(@Param('userId') userId: number) {
+    return this.memosService.getUserMemos(parseInt(userId.toString()));
+  }
+  @Get('get-user-drafts/:userId')
+  async getUserDrafts(@Param('userId') userId: number) {
+    return this.memosService.getUserDrafts(parseInt(userId.toString()));
+  }
+
   @Delete('delete-memo/:memoId')
   async deleteMemo(@Param('memoId') memoId: number) {
     return this.memosService.deleteMemo(memoId);

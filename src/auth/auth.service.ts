@@ -120,6 +120,7 @@ export class AuthService {
     try {
       return await this.prismaService.user.findFirstOrThrow({
         where: { email: email },
+        include: { department: true },
       });
     } catch (_) {
       throw new NotFoundException('User not found');
@@ -127,7 +128,7 @@ export class AuthService {
   }
 
   async getAllUsers() {
-    return this.prismaService.user.findMany();
+    return this.prismaService.user.findMany({include: {department: true}});
   }
 
   async deleteUser(accountId: number) {
