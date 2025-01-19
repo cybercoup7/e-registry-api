@@ -81,7 +81,7 @@ export class MemosService {
   async getAllMemos() {
     return this.prismaService.memo.findMany({
       where: { isDraft: false },
-      include: { file: true ,fromUser: true ,toUser: true },
+      include: { file: true, fromUser: true, toUser: true },
     });
   }
 
@@ -89,7 +89,7 @@ export class MemosService {
   async getMemoById(id: number) {
     const data = await this.prismaService.memo.findUnique({
       where: { id: parseInt(id.toString()), isDraft: false },
-      include: { file: true },
+      include: { file: true, toUser: true, fromUser: true },
     });
     if (!data) throw new NotFoundException('memo not found');
     const forwardHistory = await this.prismaService.forwardedMemo.findMany({
@@ -110,8 +110,8 @@ export class MemosService {
   async getMemosForwardedToUser(userId: number) {
     try {
       return await this.prismaService.forwardedMemo.findMany({
-        where: { forwardedToId: userId},
-        include: { memo: true ,forwardedTo: true, forwardedBy: true },
+        where: { forwardedToId: userId },
+        include: { memo: true, forwardedTo: true, forwardedBy: true },
       });
     } catch (e) {
       throw new NotFoundException('memo not found');
@@ -123,7 +123,7 @@ export class MemosService {
     try {
       return await this.prismaService.forwardedMemo.findMany({
         where: { forwardedById: userId },
-        include: { memo: true, forwardedTo: true ,forwardedBy: true },
+        include: { memo: true, forwardedTo: true, forwardedBy: true },
       });
     } catch (e) {
       throw new NotFoundException('memo not found');
@@ -135,23 +135,25 @@ export class MemosService {
     try {
       return await this.prismaService.memo.findMany({
         where: { from: userId, isDraft: false },
-        include: { file: true ,fromUser: true ,toUser: true },
+        include: { file: true, fromUser: true, toUser: true },
       });
     } catch (e) {
       throw new NotFoundException('memo not found');
     }
   }
+
   //get user drafts
   async getUserDrafts(userId: number) {
     try {
       return await this.prismaService.memo.findMany({
         where: { from: userId, isDraft: true },
-        include: { file: true,fromUser: true ,toUser: true },
+        include: { file: true, fromUser: true, toUser: true },
       });
     } catch (e) {
       throw new NotFoundException('memo not found');
     }
   }
+
   //delete memo
   async deleteMemo(id: number) {
     try {
